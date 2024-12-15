@@ -1,7 +1,7 @@
 import pygame
 from configs import WIDTH, HEIGHT, WHITE, SQ_SIZE, BUTTON_WIDTH, BUTTON_HEIGHT
 from draw_logic import create_board, draw_board, draw_pieces, draw_pass_turn_button, create_board_moviment, draw_possible_moves, draw_turn_moves, draw_waiting_for_IA
-
+from mensaje import show_winner_message
 # Inicialización de pygame
 pygame.init()
 
@@ -59,7 +59,8 @@ def main():
         clock.tick(60)
 
         if winner is not None:
-            print(f"¡{winner} ha ganado!")
+            show_winner_message(winner)
+            run = False
             continue
 
         for event in pygame.event.get():
