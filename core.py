@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 from configs import WIDTH, HEIGHT, WHITE, SQ_SIZE, BUTTON_WIDTH, BUTTON_HEIGHT
-from draw_logic import create_board, draw_board, draw_pieces, draw_pass_turn_button, create_board_moviment, draw_possible_moves, draw_turn_moves
+from draw_logic import create_board, draw_board, draw_pieces, draw_pass_turn_button, create_board_moviment, draw_possible_moves, draw_turn_moves, draw_waiting_for_IA
 
 # Inicialización de pygame
 pygame.init()
@@ -28,7 +28,7 @@ def redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)
 # Función principal del juego
 def main():
     from moving import fall_in_trap, get_cell_from_mouse, skip_turn, click_controller_steps
-    from IA import alpha_beta
+    from IA2 import minimax, apply_move
     global turn
     global traps
     board = create_board()
@@ -54,6 +54,8 @@ def main():
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Botón izquierdo del ratón
+                    if (turn != 1):
+                        continue
                     mouse_pos = pygame.mouse.get_pos()
                     
                     # Verificar si se hizo clic en el botón "Pasar Turno"
@@ -68,18 +70,17 @@ def main():
         board = redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)
         pygame.display.update()
         if (turn == 2):
-            _, best_sequence = alpha_beta(board, 2, float('-inf'), float('inf'), True, 2, 4)
-            for i, seq_board in enumerate(best_sequence):
-                print(f"\n{seq_board}")
-            for new_board in best_sequence:
-                pygame.time.wait(100)
+            draw_waiting_for_IA(WIN)
+            pygame.time.wait(100)
+            pygame.display.update()
+            result = minimax(board, 1, True)
+            best_sequence = result["moves"]
+            for move in best_sequence:
+                board = apply_move(board, move)
+                board = redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)    
+                pygame.time.wait(200)
                 pygame.display.update()
-                board = redraw_window(WIN, fall_in_trap, new_board, traps, matrix_moviment, turn, moves)
-                pygame.time.wait(100)
-                pygame.display.update()
-            turn = 1
-            moves = 4
-            continue
+            moves = 0
 
         if moves == 0:
             moves, turn, winner = skip_turn(moves, board, turn)

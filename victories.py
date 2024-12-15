@@ -6,22 +6,22 @@ def check_Victories(board):
     victory = check_victory_by_goal(board)
     if victory:
         winner = "Player 1" if victory == TEAM1 else "Player 2" if victory == TEAM2 else None
-        print(f"¡{winner} ha ganado por alcanzar el objetivo!")
-        return True
+        # print(f"¡{winner} ha ganado por alcanzar el objetivo!")
+        return winner
 
     # Verificar victoria por piezas inmovilizadas
     victory = check_victory_by_immobilization(board)
     if victory:
         winner = "Player 1" if victory == TEAM1 else "Player 2" if victory == TEAM2 else None
-        print(f"¡{winner} ha ganado por inmovilización de piezas!")
-        return True
+        # print(f"¡{winner} ha ganado por inmovilización de piezas!")
+        return winner
 
     # Verificar victoria por ausencia de piezas
     victory = check_victory_by_no_pieces(board)
     if victory:
         winner = "Player 1" if victory == TEAM1 else "Player 2" if victory == TEAM2 else None
-        print(f"¡{winner} ha ganado por eliminación de todas las piezas del oponente!")
-        return True
+        # print(f"¡{winner} ha ganado por eliminación de todas las piezas del oponente!")
+        return winner
 
     return None
 

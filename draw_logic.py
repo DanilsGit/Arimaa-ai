@@ -5,30 +5,31 @@ from configs import ROWS, COLS, SQ_SIZE, WIDTH, BUTTON_WIDTH, BUTTON_HEIGHT, HEI
 
 # Crear la matriz del tablero
 def create_board():
-    # board = np.zeros((ROWS, COLS), dtype=int)
-    # # 1 elefante, 1 camello, 2 caballos, 2 perros, 2 gatos, 8 conejos
-    # initial_pieces = [6, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1]
-    # pieces = initial_pieces.copy()
-    # np.random.shuffle(pieces)
-    # # colocarse en la primera y segunda fila de cada jugador
-    # for i, row in enumerate([0, 1, 6, 7]):
-    #     for col in range(COLS):
-    #         board[row, col] = pieces.pop()
-    #         if row >= 6:
-    #             board[row, col] += 6
-    #     if row == 1:
-    #         pieces = initial_pieces.copy()
-    #         np.random.shuffle(pieces)
-    board = np.array([
-        [1, 2, 3, 3, 4, 4, 5, 5],
-        [6, 6, 6, 6, 6, 6, 6, 6],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 12, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [7, 7, 7, 7, 7, 7, 7, 7],
-        [8, 8, 9, 9, 10, 10, 11, 7]
-    ])
+    board = np.zeros((ROWS, COLS), dtype=int)
+    # 1 elefante, 1 camello, 2 caballos, 2 perros, 2 gatos, 8 conejos
+    initial_pieces = [6, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1]
+    pieces = initial_pieces.copy()
+    np.random.shuffle(pieces)
+    # colocarse en la primera y segunda fila de cada jugador
+    for i, row in enumerate([0, 1, 6, 7]):
+        for col in range(COLS):
+            board[row, col] = pieces.pop()
+            if row >= 6:
+                board[row, col] += 6
+        if row == 1:
+            pieces = initial_pieces.copy()
+            np.random.shuffle(pieces)
+    # test board
+    # board = np.array([
+    #     [6, 5, 4, 4, 3, 3, 2, 2],
+    #     [1, 1, 1, 1, 1, 1, 1, 1],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [7, 7, 7, 7, 7, 7, 7, 7],
+    #     [12, 11, 10, 10, 9, 9, 8, 8],
+    # ])
     return board
 
 def create_board_moviment():
@@ -99,6 +100,15 @@ def draw_turn_moves(WIN, turn, moves):
     pygame.draw.rect(WIN, (0, 0, 0), text_bg)
     # text
     WIN.blit(text, (WIDTH - text.get_width(), HEIGHT - text.get_height()))
+
+def draw_waiting_for_IA(WIN):
+    font = pygame.font.SysFont(None, 50)
+    text = font.render("Esperando a la IA...", True, (0, 100, 250))
+    # text_bg
+    text_bg = pygame.Rect(WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2, text.get_width(), text.get_height())
+    pygame.draw.rect(WIN, (0, 0, 0), text_bg)
+    # text
+    WIN.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
 
 def draw_possible_moves(WIN, matrix_moviment):
     for row in range(ROWS):
