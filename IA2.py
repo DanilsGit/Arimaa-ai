@@ -2,7 +2,7 @@ import numpy as np
 from victories import check_Victories
 from moving import get_valit_moves, get_push_pull_moves, get_piece_to_attack, fall_in_trap
 from core import TEAM1, TEAM2, TRAPS
-import time
+
 
 def applly_one_move(board, move):
     fromPiece, toPiece = move
@@ -33,7 +33,7 @@ def get_AI_movements(board, maximizing_player):
 
     def generate_moves(board, current_moves):
         if len(current_moves) == 4:
-            turn.append(current_moves[:])
+            turn.append(current_moves)
             return
 
         for row in range(len(board)):
@@ -49,28 +49,29 @@ def get_AI_movements(board, maximizing_player):
                         new_board = applly_one_move(new_board, move)
                         # Llamada recursiva con tablero actualizado y profundidad incrementada
                         generate_moves(new_board, new_current_moves)
-                    # for push in pushes_moves:
-                    #     if len(current_moves) < 2:
-                    #         continue
-                    #     to_move = [push[1]] + [push[0]]
-                    #     new_current_moves = current_moves[:] + [to_move]
-                    #     new_board = board.copy()
-                    #     new_board = applly_one_move(new_board, push[1])
-                    #     new_board = applly_one_move(new_board, push[0])
-                    # for pull in pulls_moves:
-                    #     if len(current_moves) < 2:
-                    #         continue
-                    #     to_move = [pull[1]] + [pull[0]]
-                    #     new_current_moves = current_moves[:] + [to_move]
-                    #     new_board = board.copy()
-                    #     new_board = applly_one_move(new_board, pull[1])
-                    #     new_board = applly_one_move(new_board, pull[0])
-                    #     generate_moves(new_board, new_current_moves)
+                    for push in pushes_moves:
+                        if len(current_moves) > 2:
+                            continue
+                        to_move = [push[1]] + [push[0]]
+                        new_current_moves = current_moves[:] + to_move
+                        new_board = board.copy()
+                        new_board = applly_one_move(new_board, push[1])
+                        new_board = applly_one_move(new_board, push[0])
+                        generate_moves(new_board, new_current_moves)
+                    for pull in pulls_moves:
+                        if len(current_moves) > 2:
+                            continue
+                        to_move = [pull[0]] + [pull[1]]
+                        new_current_moves = current_moves[:] + to_move
+                        new_board = board.copy()
+                        new_board = applly_one_move(new_board, pull[0])
+                        new_board = applly_one_move(new_board, pull[1])
+                        generate_moves(new_board, new_current_moves)
 
 
         # Si la profundidad es mayor que 0, agregar el turno parcial
         if len(current_moves) > 0:
-            turn.append(current_moves[:])
+            turn.append(current_moves)
         
     generate_moves(board, [])
     # reverse turn para obtener jugadas sin devolverse
@@ -93,11 +94,11 @@ def minimax(board, depth, maximizing_player, alpha=-float("inf"), beta=float("in
         dict: Contiene el puntaje de la evaluación y los mejores movimientos como lista de tuplas ((fila_inicio, col_inicio), (fila_fin, col_fin)).
     """
     if depth == 0 or check_Victories(board) is not None:
-        return {"score": evaluate_board(board, maximizing_player), "moves": []}
+        return {"score": evaluate_board(board), "moves": []}
 
     legal_moves = get_AI_movements(board, maximizing_player)
 
-    if not maximizing_player:
+    if maximizing_player:
         max_eval = float("-inf")
         best_moves = []
 
@@ -133,6 +134,8 @@ def minimax(board, depth, maximizing_player, alpha=-float("inf"), beta=float("in
                 break  # Corte por alfa.
 
         return {"score": min_eval, "moves": best_moves}
+
+
 
 # Funciones auxiliares
 def get_moves_as_tuples(board, fromPiece):
@@ -183,31 +186,59 @@ def get_pushes_pulls_as_tuples(board, fromPiece):
 
     return movesPush, movesPull
 
+weights = {
+    1: 1,  # Conejo dorado
+    2: 2,  # Gato dorado
+    3: 3,  # Perro dorado
+    4: 4,  # Caballo dorado
+    5: 5,  # Camello dorado
+    6: 6,  # Elefante dorado
+    7: 1,  # Conejo plateado
+    8: 2,  # Gato plateado
+    9: 3,  # Perro plateado
+    10: 4,  # Caballo plateado
+    11: 5,  # Camello plateado
+    12: 6  # Elefante plateado
+}
+
+
 # Funciones auxiliares
-def evaluate_board(board, maximizing_player):
+def evaluate_board(board):
     """Evalúa el tablero y devuelve una puntuación."""
-    # Sumatoria de las distancias de los conejos de MAX
-    # Desde su posición hasta la meta.
-    team = TEAM2 if maximizing_player else TEAM2
-    my_rabbit = 7 if maximizing_player else 1
-    count_enemy_team = 0
-    count_ally_team = 0
     score_rabbit = 0
+    count_my_pieces = 0
+    count_enemy_pieces = 0
+    trap_proximity_score = 0
+    enemy_rabbit_score = 0
+    enemy_piece_value_score = 0
+
     for row in range(len(board)):
         for col in range(len(board[row])):
             piece = board[row, col]
-            if piece == my_rabbit:
-                score_rabbit += (len(board) - row)
-            if piece not in team:
-                count_enemy_team += 1
-            if piece in team:
-                count_ally_team += 1
+            if piece == 7:
+                score_rabbit += (len(board) - row + 1)
+            if piece in TEAM2:
+                count_my_pieces += 1
+            if piece in TEAM1:
+                count_enemy_pieces += 1
+                enemy_piece_value_score += piece  # Añadir el valor de la pieza enemiga
+                if piece == 1:  # Si es un conejo enemigo
+                    enemy_rabbit_score += row + 1
+                for trap in TRAPS:
+                    trap_row, trap_col = trap
+                    distance_to_trap = abs(row - trap_row) + abs(col - trap_col)
+                    if distance_to_trap == 1:
+                        trap_proximity_score += 5
+                    elif distance_to_trap == 2:
+                        trap_proximity_score += 2
 
-    allys_no_killed = abs(count_ally_team - 8)
+    # Entre menos piezas enemigas, mejor
+    kill_score = 3 - count_enemy_pieces
 
-    heuristic = score_rabbit
+    heuristic = (score_rabbit * 10) + (count_my_pieces * 5) + (kill_score * 20) + (trap_proximity_score * 5) - (enemy_rabbit_score * 10) + (enemy_piece_value_score * 10)
 
     return heuristic
+
 
 # Ejemplo de inicialización del tablero
 if __name__ == "__main__":
@@ -216,11 +247,22 @@ if __name__ == "__main__":
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 12, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [7, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 7, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
     ])
+    # jala y empuja
+    # board = np.array([
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 12, 1, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 1, 1, 1],
+    #     [0, 0, 0, 0, 0, 0, 7, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
+    # ])
     # board2 = np.array([
     #     [0, 0, 0, 0, 0, 0, 0, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],

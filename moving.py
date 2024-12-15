@@ -1,7 +1,8 @@
 import numpy as np
-from configs import SQ_SIZE
-from core import TEAM1, TEAM2, TRAPS
+from configs import SQ_SIZE, WHITE
+from core import TEAM1, TEAM2, TRAPS, redraw_window
 from victories import check_Victories
+import pygame
 weights = {
     1: 1,  # Conejo dorado
     2: 2,  # Gato dorado
@@ -16,6 +17,62 @@ weights = {
     11: 5,  # Camello plateado
     12: 6  # Elefante plateado
 }
+
+
+def applly_one_animated_move(board, move, WIN, matrix_moviment, turn, moves):
+    fromPiece, toPiece = move
+    prevRow, prevCol = fromPiece
+    newRow, newCol = toPiece
+
+    cell_width = SQ_SIZE
+    cell_height = SQ_SIZE
+
+    start_x = prevCol * cell_width
+    start_y = prevRow * cell_height
+    end_x = newCol * cell_width
+    end_y = newRow * cell_height
+
+    steps = 20
+    delta_x = (end_x - start_x) / steps
+    delta_y = (end_y - start_y) / steps
+
+    piece = board[prevRow, prevCol]
+
+    # Cargar las imágenes de las piezas
+    piece_images = {
+        6: pygame.transform.scale(pygame.image.load("./images/pieces/e0.png"), (SQ_SIZE, SQ_SIZE)),  # Elefante dorado
+        5: pygame.transform.scale(pygame.image.load("./images/pieces/c0.png"), (SQ_SIZE, SQ_SIZE)),  # Camello dorado
+        4: pygame.transform.scale(pygame.image.load("./images/pieces/h0.png"), (SQ_SIZE, SQ_SIZE)),  # Caballo dorado
+        3: pygame.transform.scale(pygame.image.load("./images/pieces/d0.png"), (SQ_SIZE, SQ_SIZE)),  # Perro dorado
+        2: pygame.transform.scale(pygame.image.load("./images/pieces/ca0.png"), (SQ_SIZE, SQ_SIZE)), # Gato dorado
+        1: pygame.transform.scale(pygame.image.load("./images/pieces/r0.png"), (SQ_SIZE, SQ_SIZE)),  # Conejo dorado
+        12: pygame.transform.scale(pygame.image.load("./images/pieces/e1.png"), (SQ_SIZE, SQ_SIZE)),  # Elefante plateado
+        11: pygame.transform.scale(pygame.image.load("./images/pieces/c1.png"), (SQ_SIZE, SQ_SIZE)),  # Camello plateado
+        10: pygame.transform.scale(pygame.image.load("./images/pieces/h1.png"), (SQ_SIZE, SQ_SIZE)),  # Caballo plateado
+        9: pygame.transform.scale(pygame.image.load("./images/pieces/d1.png"), (SQ_SIZE, SQ_SIZE)), # Perro plateado
+        8: pygame.transform.scale(pygame.image.load("./images/pieces/ca1.png"), (SQ_SIZE, SQ_SIZE)),# Gato plateado
+        7: pygame.transform.scale(pygame.image.load("./images/pieces/r1.png"), (SQ_SIZE, SQ_SIZE))   # Conejo plateado
+    }
+    piece_image = piece_images.get(piece)
+
+    for step in range(steps):
+        current_x = start_x + delta_x * step
+        current_y = start_y + delta_y * step
+
+        # Actualiza la ventana omitiendo la posición original de la pieza
+        redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves, moving_piece=piece_image, moving_pos=(current_x, current_y), moving_from=(prevRow, prevCol))
+        pygame.display.update()
+        pygame.time.delay(20)
+
+    # Actualiza el tablero final
+    board[newRow, newCol] = piece
+    board[prevRow, prevCol] = 0
+    board = fall_in_trap(board)
+    return board
+
+
+
+
 
 # get moves
 def get_push_pull_moves(board, cell_in_attack, cell_to_attack):
@@ -78,7 +135,7 @@ def get_piece_to_attack(board, cell):
     for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:  # Movimientos posibles: arriba, abajo, izquierda, derecha
         r, c = cell[0] + i, cell[1] + j
         if 0 <= r < 8 and 0 <= c < 8 and board[r, c] in enemy_team:
-            # Si la celda enemiga es más pesada que la celda actual
+            # Si la celda enemiga es más ligera que la celda actual
             if weights[board[r, c]] < weights[board[cell]]:
                 matrix_moviment[r, c] = 4
     return matrix_moviment

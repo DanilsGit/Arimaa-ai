@@ -14,20 +14,34 @@ TEAM2 = [7,8,9,10,11,12]
 TRAPS = [(2, 2), (2, 5), (5, 2), (5, 5)]
 turn = 1 
 
-def redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves):
+def redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves, moving_piece=None, moving_pos=None, moving_from=None):
     board = fall_in_trap(board)
     WIN.fill(WHITE)
     draw_board(WIN, board, TRAPS)
-    draw_pieces(WIN, board)
+
+    # Tablero temporal para omitir la pieza en movimiento
+    if moving_from:
+        temp_board = [row.copy() for row in board]
+        temp_board[moving_from[0]][moving_from[1]] = 0
+        draw_pieces(WIN, temp_board)  # Dibuja sin la pieza en movimiento
+    else:
+        draw_pieces(WIN, board)
+
+    # Dibuja la pieza en movimiento
+    if moving_piece and moving_pos:
+        WIN.blit(moving_piece, moving_pos)
+
     draw_possible_moves(WIN, matrix_moviment)
     draw_pass_turn_button(WIN)
     draw_turn_moves(WIN, turn, moves)
     return board
 
+
+
 # Función principal del juego
 def main():
-    from moving import fall_in_trap, get_cell_from_mouse, skip_turn, click_controller_steps
-    from IA2 import minimax, applly_one_move
+    from moving import fall_in_trap, get_cell_from_mouse, skip_turn, click_controller_steps, applly_one_animated_move
+    from IA2 import minimax
     global turn
     global TRAPS
     board = create_board()
@@ -46,7 +60,7 @@ def main():
 
         if winner is not None:
             print(f"¡{winner} ha ganado!")
-            run = False
+            continue
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -70,15 +84,13 @@ def main():
         pygame.display.update()
         if (turn == 2):
             draw_waiting_for_IA(WIN)
-            pygame.time.wait(100)
+            pygame.time.wait(800)
             pygame.display.update()
             result = minimax(board, 1, True)
             best_sequence = result["moves"]
             for move in best_sequence:
-                board = applly_one_move(board, move)
+                board = applly_one_animated_move(board, move, WIN, matrix_moviment, turn, moves)
                 board = redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves)    
-                pygame.time.wait(200)
-                pygame.display.update()
             moves = 0
 
         if moves == 0:

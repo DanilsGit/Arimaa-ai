@@ -25,9 +25,9 @@ def create_board():
     #     [0, 0, 0, 0, 0, 0, 0, 0],
     #     [0, 0, 0, 12, 1, 0, 0, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
-    #     [7, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 1, 1, 1],
+    #     [0, 0, 0, 0, 0, 0, 7, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 1, 0, 0, 0, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
     # ])
     return board
@@ -54,7 +54,7 @@ def draw_board(win, board, TRAPS):
         win.blit(trampa, (c * SQ_SIZE, r * SQ_SIZE))
 
 # Dibujar las piezas
-def draw_pieces(win, board):
+def draw_pieces(win, board, exclude_piece=None):
     # Cargar y redimensionar imágenes de piezas
     piece_images = {
         6: pygame.transform.scale(pygame.image.load("./images/pieces/e0.png"), (SQ_SIZE, SQ_SIZE)),  # Elefante dorado
@@ -71,13 +71,14 @@ def draw_pieces(win, board):
         7: pygame.transform.scale(pygame.image.load("./images/pieces/r1.png"), (SQ_SIZE, SQ_SIZE))   # Conejo plateado
     }
 
-    for row in range(ROWS):
-        for col in range(COLS):
-            piece = board[row, col]
-            if piece != 0:
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            piece = board[row][col]  # Cambiado a board[row][col]
+            if piece != 0 and piece != exclude_piece:  # Excluir la pieza en movimiento
                 image = piece_images.get(piece)
                 if image:
                     win.blit(image, (col * SQ_SIZE, row * SQ_SIZE))
+
 
 # Función para dibujar el botón "Pasar Turno"
 def draw_pass_turn_button(WIN):

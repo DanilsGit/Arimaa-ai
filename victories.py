@@ -60,14 +60,12 @@ def check_victory_by_immobilization(board):
 
 
 def check_victory_by_no_pieces(board):
-    # Verificar si no quedan piezas de TEAM1
-    team1_exists = any(piece in TEAM1 for row in board for piece in row)
-    if not team1_exists:
+    # Verificar si no le quedan conejos a TEAM1
+    if 1 not in board:
         return TEAM2
-
-    # Verificar si no quedan piezas de TEAM2
-    team2_exists = any(piece in TEAM2 for row in board for piece in row)
-    if not team2_exists:
+    
+    # Verificar si no le quedan conejos a TEAM2
+    if 7 not in board:
         return TEAM1
 
     return None
