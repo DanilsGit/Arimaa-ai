@@ -1,6 +1,6 @@
 import numpy as np
 from configs import SQ_SIZE
-from core import TEAM1, TEAM2, traps
+from core import TEAM1, TEAM2, TRAPS
 from victories import check_Victories
 weights = {
     1: 1,  # Conejo dorado
@@ -36,7 +36,7 @@ def get_push_pull_moves(board, cell_in_attack, cell_to_attack):
     return matrix_moviment
 
 def get_valit_moves(board, selected_piece):
-    global traps
+    global TRAPS
     row, col = selected_piece
     isGoldRabbit = board[row, col] == 1
     isSilverRabbit = board[row, col] == 7
@@ -56,7 +56,7 @@ def get_valit_moves(board, selected_piece):
             if isSilverRabbit and i == 1:
                 continue
             # Si el siguiente movimiento es una trampa, no se puede mover a menos que tenga un compañero cerca
-            if (r, c) in traps and not has_neightbor_team(board, (r, c), selected_piece):
+            if (r, c) in TRAPS and not has_neightbor_team(board, (r, c), selected_piece):
                 continue
             valid_moves[r, c] = 1
     return valid_moves
@@ -69,6 +69,17 @@ def get_pieces_can_attack(board, cell):
         if 0 <= r < 8 and 0 <= c < 8 and board[r, c] in enemy_team:
             # Si la celda enemiga es más pesada que la celda actual
             if weights[board[r, c]] > weights[board[cell]]:
+                matrix_moviment[r, c] = 4
+    return matrix_moviment
+
+def get_piece_to_attack(board, cell):
+    enemy_team = TEAM1 if board[cell] in TEAM2 else TEAM2
+    matrix_moviment = np.zeros((8, 8))
+    for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:  # Movimientos posibles: arriba, abajo, izquierda, derecha
+        r, c = cell[0] + i, cell[1] + j
+        if 0 <= r < 8 and 0 <= c < 8 and board[r, c] in enemy_team:
+            # Si la celda enemiga es más pesada que la celda actual
+            if weights[board[r, c]] < weights[board[cell]]:
                 matrix_moviment[r, c] = 4
     return matrix_moviment
 
@@ -129,8 +140,8 @@ def move_piece(board, selected_piece, target_pos):
     return board
 
 def fall_in_trap(board):
-    global traps
-    for trap in traps:
+    global TRAPS
+    for trap in TRAPS:
         row, col = trap
         if board[row, col] != 0:
             if not has_neightbor_team(board, trap):
@@ -169,12 +180,11 @@ def get_cell_from_mouse(pos):
 # Función para controlar los clicks del mouse
 def click_controller_steps(matrix_moviment, cell, board, moves, selected_piece, piece_in_attack, piece_to_attack, turn):
     from draw_logic import create_board_moviment
-    global traps
+    global TRAPS
     default_matrix = create_board_moviment()
     team = TEAM1 if turn == 1 else TEAM2
     enemy_team = TEAM2 if turn == 1 else TEAM1
     row, col = cell
-    print(turn)
     # Si el click fue a una pieza del equipo contrario es para
     # hacerle push o pull
     # Entonces si tiene vecinos enemigos (fichas de mi equipo)

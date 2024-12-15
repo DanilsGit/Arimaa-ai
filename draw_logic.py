@@ -21,14 +21,14 @@ def create_board():
             np.random.shuffle(pieces)
     # test board
     # board = np.array([
-    #     [6, 5, 4, 4, 3, 3, 2, 2],
-    #     [1, 1, 1, 1, 1, 1, 1, 1],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 12, 1, 0, 0, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
+    #     [7, 0, 0, 0, 0, 0, 0, 0],
     #     [0, 0, 0, 0, 0, 0, 0, 0],
-    #     [7, 7, 7, 7, 7, 7, 7, 7],
-    #     [12, 11, 10, 10, 9, 9, 8, 8],
+    #     [0, 0, 0, 1, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0],
     # ])
     return board
 
@@ -37,7 +37,7 @@ def create_board_moviment():
     return valid_moves
 
 # Dibujar el tablero
-def draw_board(win, board, traps):
+def draw_board(win, board, TRAPS):
     # Cargar y redimensionar imágenes
     celda_par = pygame.transform.scale(pygame.image.load("./images/celdapar.jpg"), (SQ_SIZE, SQ_SIZE))
     celda_impar = pygame.transform.scale(pygame.image.load("./images/celdaimpar.jpg"), (SQ_SIZE, SQ_SIZE))
@@ -49,7 +49,7 @@ def draw_board(win, board, traps):
             win.blit(image, (col * SQ_SIZE, row * SQ_SIZE))
 
     # Dibujar trampas
-    for trap in traps:
+    for trap in TRAPS:
         r, c = trap
         win.blit(trampa, (c * SQ_SIZE, r * SQ_SIZE))
 

@@ -1,5 +1,4 @@
 import pygame
-import numpy as np
 from configs import WIDTH, HEIGHT, WHITE, SQ_SIZE, BUTTON_WIDTH, BUTTON_HEIGHT
 from draw_logic import create_board, draw_board, draw_pieces, draw_pass_turn_button, create_board_moviment, draw_possible_moves, draw_turn_moves, draw_waiting_for_IA
 
@@ -12,13 +11,13 @@ pygame.display.set_caption("Arimaa Game")
 
 TEAM1 = [1,2,3,4,5,6]
 TEAM2 = [7,8,9,10,11,12]
-traps = [(2, 2), (2, 5), (5, 2), (5, 5)]
+TRAPS = [(2, 2), (2, 5), (5, 2), (5, 5)]
 turn = 1 
 
-def redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves):
+def redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves):
     board = fall_in_trap(board)
     WIN.fill(WHITE)
-    draw_board(WIN, board, traps)
+    draw_board(WIN, board, TRAPS)
     draw_pieces(WIN, board)
     draw_possible_moves(WIN, matrix_moviment)
     draw_pass_turn_button(WIN)
@@ -28,9 +27,9 @@ def redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)
 # Función principal del juego
 def main():
     from moving import fall_in_trap, get_cell_from_mouse, skip_turn, click_controller_steps
-    from IA2 import minimax, apply_move
+    from IA2 import minimax, applly_one_move
     global turn
-    global traps
+    global TRAPS
     board = create_board()
     matrix_moviment = create_board_moviment()
 
@@ -67,7 +66,7 @@ def main():
                     matrix_moviment, moves, selected_piece, board, piece_in_attack, piece_to_attack = click_controller_steps(matrix_moviment, cell, board, moves, selected_piece, piece_in_attack, piece_to_attack, turn)
 
         # redibujar el tablero antes de que la IA juegue
-        board = redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)
+        board = redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves)
         pygame.display.update()
         if (turn == 2):
             draw_waiting_for_IA(WIN)
@@ -76,8 +75,8 @@ def main():
             result = minimax(board, 1, True)
             best_sequence = result["moves"]
             for move in best_sequence:
-                board = apply_move(board, move)
-                board = redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)    
+                board = applly_one_move(board, move)
+                board = redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves)    
                 pygame.time.wait(200)
                 pygame.display.update()
             moves = 0
@@ -87,7 +86,7 @@ def main():
             continue
 
         # Redibujar el tablero
-        board = redraw_window(WIN, fall_in_trap, board, traps, matrix_moviment, turn, moves)
+        board = redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves)
         pygame.display.update()
 
     pygame.quit()
