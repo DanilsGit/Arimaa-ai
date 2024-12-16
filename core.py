@@ -16,7 +16,6 @@ turn = 1
 
 def redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves, moving_piece=None, moving_pos=None, moving_from=None):
     board = fall_in_trap(board)
-    WIN.fill(WHITE)
     draw_board(WIN, board, TRAPS)
 
     # Tablero temporal para omitir la pieza en movimiento
@@ -63,6 +62,7 @@ def main():
             run = False
             continue
 
+        # Nosotros
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -74,6 +74,7 @@ def main():
                     
                     # Verificar si se hizo clic en el botón "Pasar Turno"
                     pass_turn_button = pygame.Rect(WIDTH - BUTTON_WIDTH/2 - WIDTH/2, 0, BUTTON_WIDTH, BUTTON_HEIGHT)
+                    
                     if pass_turn_button.collidepoint(mouse_pos):
                         moves, turn, winner = skip_turn(moves, board, turn)
                         continue
@@ -81,6 +82,7 @@ def main():
                     matrix_moviment, moves, selected_piece, board, piece_in_attack, piece_to_attack = click_controller_steps(matrix_moviment, cell, board, moves, selected_piece, piece_in_attack, piece_to_attack, turn)
 
         # redibujar el tablero antes de que la IA juegue
+        # AI
         board = redraw_window(WIN, fall_in_trap, board, TRAPS, matrix_moviment, turn, moves)
         pygame.display.update()
         if (turn == 2):

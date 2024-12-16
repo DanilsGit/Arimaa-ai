@@ -32,7 +32,7 @@ def applly_one_animated_move(board, move, WIN, matrix_moviment, turn, moves):
     end_x = newCol * cell_width
     end_y = newRow * cell_height
 
-    steps = 20
+    steps = 10
     delta_x = (end_x - start_x) / steps
     delta_y = (end_y - start_y) / steps
 
@@ -190,10 +190,8 @@ def has_neightbor_enemy_stronger(board, position):
 
 # Movements
 def move_piece(board, selected_piece, target_pos):
-    row, col = selected_piece
-    target_row, target_col = target_pos
-    board[target_row, target_col] = board[row, col]
-    board[row, col] = 0
+    board[target_pos] = board[selected_piece]
+    board[selected_piece] = 0
     return board
 
 def fall_in_trap(board):
@@ -239,7 +237,6 @@ def click_controller_steps(matrix_moviment, cell, board, moves, selected_piece, 
     from draw_logic import create_board_moviment
     global TRAPS
     default_matrix = create_board_moviment()
-    team = TEAM1 if turn == 1 else TEAM2
     enemy_team = TEAM2 if turn == 1 else TEAM1
     row, col = cell
     # Si el click fue a una pieza del equipo contrario es para

@@ -2,7 +2,7 @@ import numpy as np
 from victories import check_Victories
 from moving import get_valit_moves, get_push_pull_moves, get_piece_to_attack, fall_in_trap
 from core import TEAM1, TEAM2, TRAPS
-
+import time
 
 def applly_one_move(board, move):
     fromPiece, toPiece = move
@@ -84,7 +84,7 @@ def minimax(board, depth, maximizing_player, alpha=-float("inf"), beta=float("in
     Implementación del algoritmo Minimax con poda alfa-beta para Arimaa.
     
     Args:
-        board: Objeto que representa el estado actual del juego.
+        board: Matriz que representa el estado actual del juego.
         depth: Profundidad máxima de búsqueda.
         maximizing_player: Booleano que indica si es el turno del jugador maximizador.
         alpha: Valor alfa para la poda.
@@ -134,7 +134,6 @@ def minimax(board, depth, maximizing_player, alpha=-float("inf"), beta=float("in
                 break  # Corte por alfa.
 
         return {"score": min_eval, "moves": best_moves}
-
 
 
 # Funciones auxiliares
@@ -212,6 +211,8 @@ def evaluate_board(board):
     enemy_rabbit_score = 0
     enemy_piece_value_score = 0
 
+    strong_pieces_in_middle = 0
+
     for row in range(len(board)):
         for col in range(len(board[row])):
             piece = board[row, col]
@@ -219,6 +220,8 @@ def evaluate_board(board):
                 score_rabbit += (len(board) - row + 1)
             if piece in TEAM2:
                 count_my_pieces += 1
+                if piece >= 10 and (row == 3 or row == 4):
+                    strong_pieces_in_middle += 1
             if piece in TEAM1:
                 count_enemy_pieces += 1
                 enemy_piece_value_score += piece  # Añadir el valor de la pieza enemiga
@@ -233,9 +236,9 @@ def evaluate_board(board):
                         trap_proximity_score += 2
 
     # Entre menos piezas enemigas, mejor
-    kill_score = 3 - count_enemy_pieces
+    kill_score = len(TEAM1) - count_enemy_pieces
 
-    heuristic = (score_rabbit * 10) + (count_my_pieces * 5) + (kill_score * 20) + (trap_proximity_score * 5) - (enemy_rabbit_score * 10) + (enemy_piece_value_score * 10)
+    heuristic = (strong_pieces_in_middle * 15) + (score_rabbit * 10) + (count_my_pieces * 5) + (kill_score * 20) + (trap_proximity_score * 5) - (enemy_rabbit_score * 10) - (enemy_piece_value_score * 10)
 
     return heuristic
 
