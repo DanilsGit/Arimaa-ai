@@ -47,7 +47,7 @@ def get_AI_movements(board, maximizing_player):
                         new_current_moves = current_moves[:] + [move]
                         new_board = board.copy()
                         new_board = applly_one_move(new_board, move)
-                        # Llamada recursiva con tablero actualizado y profundidad incrementada
+                        # Llamada recursiva con tablero actualizado
                         generate_moves(new_board, new_current_moves)
                     for push in pushes_moves:
                         if len(current_moves) > 2:
@@ -74,8 +74,7 @@ def get_AI_movements(board, maximizing_player):
             turn.append(current_moves)
         
     generate_moves(board, [])
-    # reverse turn para obtener jugadas sin devolverse
-    # turn.reverse()
+
     return turn
 
 # Configuración inicial para Minimax con poda alfa-beta.
@@ -91,7 +90,9 @@ def minimax(board, depth, maximizing_player, alpha=-float("inf"), beta=float("in
         beta: Valor beta para la poda.
 
     Returns:
-        dict: Contiene el puntaje de la evaluación y los mejores movimientos como lista de tuplas ((fila_inicio, col_inicio), (fila_fin, col_fin)).
+        dict: Contiene el puntaje de la evaluación
+        y los mejores movimientos como lista de tuplas
+        ((fila_inicio, col_inicio), (fila_fin, col_fin)).
     """
     if depth == 0 or check_Victories(board) is not None:
         return {"score": evaluate_board(board), "moves": []}
@@ -212,6 +213,7 @@ def evaluate_board(board):
     enemy_piece_value_score = 0
 
     strong_pieces_in_middle = 0
+    literally_win = 0
 
     for row in range(len(board)):
         for col in range(len(board[row])):
@@ -222,6 +224,8 @@ def evaluate_board(board):
                 count_my_pieces += 1
                 if piece >= 10 and (row == 3 or row == 4):
                     strong_pieces_in_middle += 1
+                if row == 0 and piece == 7:
+                    literally_win += 1
             if piece in TEAM1:
                 count_enemy_pieces += 1
                 enemy_piece_value_score += piece  # Añadir el valor de la pieza enemiga
@@ -236,9 +240,9 @@ def evaluate_board(board):
                         trap_proximity_score += 2
 
     # Entre menos piezas enemigas, mejor
-    kill_score = len(TEAM1) - count_enemy_pieces
+    kill_score = 16 - count_enemy_pieces
 
-    heuristic = (strong_pieces_in_middle * 15) + (score_rabbit * 10) + (count_my_pieces * 5) + (kill_score * 20) + (trap_proximity_score * 5) - (enemy_rabbit_score * 10) - (enemy_piece_value_score * 10)
+    heuristic = (literally_win * 100) + (strong_pieces_in_middle * 15) + (score_rabbit * 10) + (count_my_pieces * 5) + (kill_score * 20) + (trap_proximity_score * 5) - (enemy_rabbit_score * 10) - (enemy_piece_value_score * 10)
 
     return heuristic
 
